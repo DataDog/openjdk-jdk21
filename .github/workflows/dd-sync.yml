@@ -21,7 +21,7 @@ jobs:
       run: |
         git config --global user.email "sync@datadoghq.com"
         git config --global user.name "Datadog Syncup Service"
-        git remote add upstream https://openjdk.org/projects/jdk/21.git
+        git remote add upstream https://github.com/openjdk/jdk21.git
         git fetch upstream
         git checkout -b upstream-master upstream/master
         git checkout --track origin/master

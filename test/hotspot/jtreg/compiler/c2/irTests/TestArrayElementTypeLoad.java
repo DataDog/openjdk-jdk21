@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, Red Hat, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,11 +21,38 @@
  * questions.
  */
 
-// key: compiler.warn.proc.use.proc.or.implicit
-// key: compiler.note.implicit.annotation.processing
-// options: -Xprefer:source
+package compiler.c2.irTests;
 
-import p.SomeClass;
+import compiler.lib.ir_framework.*;
 
-@Deprecated
-class ProcUseProcOrImplicit extends SomeClass { }
+/*
+ * @test
+ * @library /test/lib /
+ * @run driver compiler.c2.irTests.TestArrayElementTypeLoad
+ */
+
+public class TestArrayElementTypeLoad {
+    public static void main(String[] args) {
+        TestFramework.run();
+    }
+
+    static final A[] array = new A[1];
+
+    @Test
+    @IR(phase = { CompilePhase.ITER_GVN1 }, failOn = { IRNode.SUBTYPE_CHECK })
+    public static void test1(A a) {
+        array[0] = a;
+    }
+
+    @Run(test = "test1")
+    private void test1Runner() {
+        test1(new A());
+        test1(new B());
+    }
+
+    static class A {
+    }
+
+    static class B extends A {
+    }
+}

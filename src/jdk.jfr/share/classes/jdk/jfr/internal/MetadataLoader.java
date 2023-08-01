@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import jdk.jfr.AnnotationElement;
 import jdk.jfr.Category;
 import jdk.jfr.Description;
@@ -84,6 +83,7 @@ public final class MetadataLoader {
         private final boolean isRelation;
         private final boolean experimental;
         private final boolean internal;
+        private final boolean withContext;
         private final long id;
 
         public TypeElement(DataInputStream dis) throws IOException {
@@ -107,6 +107,7 @@ public final class MetadataLoader {
             id = dis.readLong();
             isEvent = dis.readBoolean();
             isRelation = dis.readBoolean();
+            withContext = dis.readBoolean();
         }
     }
 
@@ -220,7 +221,7 @@ public final class MetadataLoader {
             Type type = lookup.get(te.name);
             if (te.isEvent) {
                 boolean periodic = !te.period.isEmpty();
-                TypeLibrary.addImplicitFields(type, periodic, te.startTime && !periodic, te.thread, te.stackTrace && !periodic, te.cutoff);
+                TypeLibrary.addImplicitFields(type, periodic, te.startTime && !periodic, te.thread, te.stackTrace && !periodic, te.cutoff, te.withContext);
             }
             for (FieldElement f : te.fields) {
                 Type fieldType = Type.getKnownType(f.typeName);
@@ -263,6 +264,7 @@ public final class MetadataLoader {
                 }
                 type.add(PrivateAccess.getInstance().newValueDescriptor(f.name, fieldType, aes, f.array ? 1 : 0, f.constantPool, null));
             }
+
         }
     }
 

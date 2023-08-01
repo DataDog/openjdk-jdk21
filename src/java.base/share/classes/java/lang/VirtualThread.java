@@ -24,6 +24,9 @@
  */
 package java.lang;
 
+import jdk.internal.access.JFRContextAccess;
+import jdk.internal.access.SharedSecrets;
+
 import java.lang.ref.Reference;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -217,7 +220,7 @@ final class VirtualThread extends BaseVirtualThread {
         }
 
         // notify JVMTI before mount
-        notifyJvmtiMount(/*hide*/true);
+        notifyMount(/*hide*/true);
 
         try {
             cont.run();
@@ -306,7 +309,7 @@ final class VirtualThread extends BaseVirtualThread {
             event.commit();
         }
 
-        Object bindings = scopedValueBindings();
+        Object bindings = Thread.scopedValueBindings();
         try {
             runWith(bindings, task);
         } catch (Throwable exc) {
@@ -435,14 +438,14 @@ final class VirtualThread extends BaseVirtualThread {
     @ChangesCurrentThread
     private boolean yieldContinuation() {
         // unmount
-        notifyJvmtiUnmount(/*hide*/true);
+        notifyUnmount(/*hide*/true);
         unmount();
         try {
             return Continuation.yield(VTHREAD_SCOPE);
         } finally {
             // re-mount
             mount();
-            notifyJvmtiMount(/*hide*/false);
+            notifyMount(/*hide*/false);
         }
     }
 
@@ -459,7 +462,7 @@ final class VirtualThread extends BaseVirtualThread {
             setState(PARKED);
 
             // notify JVMTI that unmount has completed, thread is parked
-            notifyJvmtiUnmount(/*hide*/false);
+            notifyUnmount(/*hide*/false);
 
             // may have been unparked while parking
             if (parkPermit && compareAndSetState(PARKED, RUNNABLE)) {
@@ -475,7 +478,7 @@ final class VirtualThread extends BaseVirtualThread {
             setState(RUNNABLE);
 
             // notify JVMTI that unmount has completed, thread is runnable
-            notifyJvmtiUnmount(/*hide*/false);
+            notifyUnmount(/*hide*/false);
 
             // external submit if there are no tasks in the local task queue
             if (currentThread() instanceof CarrierThread ct && ct.getQueuedTaskCount() == 0) {
@@ -505,7 +508,7 @@ final class VirtualThread extends BaseVirtualThread {
         assert (state() == TERMINATED) && (carrierThread == null);
 
         if (executed) {
-            notifyJvmtiUnmount(/*hide*/false);
+            notifyUnmount(/*hide*/false);
         }
 
         // notify anyone waiting for this virtual thread to terminate
@@ -1077,6 +1080,30 @@ final class VirtualThread extends BaseVirtualThread {
     private void setCarrierThread(Thread carrier) {
         // U.putReferenceRelease(this, CARRIER_THREAD, carrier);
         this.carrierThread = carrier;
+    }
+
+    private static final long[] EMPTY_JFR_CONTEXT = new long[0];
+    private long[] jfrContext = new long[8];
+    
+    @JvmtiMountTransition
+    private void notifyMount(boolean hide) {
+        notifyJvmtiMount(hide);
+        if (!hide) {
+            JFRContextAccess access = SharedSecrets.getJFRContextAccess();
+            if (access != null) {
+                access.setAllContext(jfrContext);
+            }
+        }
+    }
+
+    private void notifyUnmount(boolean hide) {
+        notifyJvmtiUnmount(hide);
+        if (!hide) {
+            JFRContextAccess access = SharedSecrets.getJFRContextAccess();
+            if (access != null) {
+                access.getAllContext(jfrContext, 8);
+            }
+        }
     }
 
     // -- JVM TI support --

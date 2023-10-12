@@ -6,15 +6,17 @@ import jdk.jfr.internal.JVM;
 import jdk.jfr.internal.PlatformRecorder;
 
 public abstract class BaseContextType {
+    @SuppressWarnings("unchecked")
     public final void set() {
         if (shouldCaptureState()) {
-            ContextRepository.getOrRegister(this.getClass()).write(this);
+            ContextRepository.getOrRegister((Class<BaseContextType>)this.getClass()).set(this);
         }
     }
 
+    @SuppressWarnings("unchecked")
     public final void unset() {
         if (shouldCaptureState()) {
-            ContextRepository.getOrRegister(this.getClass()).clear(this);
+            ContextRepository.getOrRegister((Class<BaseContextType>)this.getClass()).unset(this);
         }
     }
 
@@ -26,7 +28,7 @@ public abstract class BaseContextType {
         return FlightRecorder.isInitialized() && PlatformRecorder.hasRecordings() && JVM.isContextEnabled();
     }
 
-    public static ContextType.Setter setterFor(Class<? extends ContextType> type) {
+    public static <T> ContextType.Access<T> accessFor(Class<T> type) {
         return ContextRepository.getOrRegister(type);
     }
 }

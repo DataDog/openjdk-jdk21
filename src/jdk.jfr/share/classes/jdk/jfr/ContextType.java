@@ -1,14 +1,6 @@
 package jdk.jfr;
 
 import java.io.Closeable;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
-import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Stream;
 
 import jdk.jfr.internal.context.BaseContextType;
@@ -19,10 +11,9 @@ public abstract class ContextType extends BaseContextType {
         Stream<Class<? extends ContextType>> types();
     }
 
-    public interface Setter {
-        void setAttribute(String name, String value);
-        void clearAttribute(String name);
-        void clearAll();
+    public interface Access<T> {
+        void set(T target);
+        void unset(T target);
     }
 
     public static final class Captured<T extends ContextType.Capturable<T>> implements Closeable, AutoCloseable {
@@ -62,7 +53,7 @@ public abstract class ContextType extends BaseContextType {
 
     protected ContextType() {}
 
-    public static Setter setterFor(Class<? extends ContextType> type) {
-        return BaseContextType.setterFor(type);
+    public static <T> Access<T> accessFor(Class<T> type) {
+        return BaseContextType.accessFor(type);
     }
 }

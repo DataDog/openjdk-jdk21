@@ -27,8 +27,4 @@ public abstract class BaseContextType {
     private static boolean shouldCaptureState() {
         return FlightRecorder.isInitialized() && PlatformRecorder.hasRecordings() && JVM.isContextEnabled();
     }
-
-    public static <T> ContextType.Access<T> accessFor(Class<T> type) {
-        return ContextRepository.getOrRegister(type);
-    }
 }

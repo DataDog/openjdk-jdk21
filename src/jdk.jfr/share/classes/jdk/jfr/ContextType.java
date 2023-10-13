@@ -11,11 +11,6 @@ public abstract class ContextType extends BaseContextType {
         Stream<Class<? extends ContextType>> types();
     }
 
-    public interface Access<T> {
-        void set(T target);
-        void unset(T target);
-    }
-
     public static final class Captured<T extends ContextType.Capturable<T>> implements Closeable, AutoCloseable {
         private final T parent, current;
 
@@ -52,8 +47,4 @@ public abstract class ContextType extends BaseContextType {
     }
 
     protected ContextType() {}
-
-    public static <T> Access<T> accessFor(Class<T> type) {
-        return BaseContextType.accessFor(type);
-    }
 }

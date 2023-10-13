@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jdk.jfr.ContextType;
+import jdk.jfr.ContextAccess;
 import jdk.jfr.internal.JVM;
 import jdk.jfr.internal.StringPool;
 
-public final class ContextWriter<T> implements ContextType.Access<T> {
+public final class ContextWriter<T> implements ContextAccess<T> {
     static final ContextWriter<?> NULL = new ContextWriter<>(-1, null);
     private final int offset;
     private final Set<ContextDescriptor> descriptors;

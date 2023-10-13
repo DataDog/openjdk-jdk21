@@ -75,6 +75,10 @@ public final class ContextWriter<T> implements ContextAccess<T> {
     }
 
     @Override
+    public void unset() {
+        unset(null);
+    }
+
     public void unset(T target) {
         if (offset == -1 || descriptors == null) {
             return;

@@ -8,5 +8,5 @@ public interface ContextAccess<T> {
     }
 
     void set(T target);
-    void unset(T target);
+    void unset();
 }

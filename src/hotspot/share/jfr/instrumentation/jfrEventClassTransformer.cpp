@@ -79,19 +79,21 @@ static const char* utf8_constants[] = {
   "()Z",          // 8
   "end",          // 9
   "shouldCommit", // 10
-  "startTime",    // 11 // LAST_REQUIRED_UTF8
-  "Ljdk/jfr/internal/event/EventConfiguration;", // 12
-  "Ljava/lang/Object;", // 13
-  "<clinit>",     // 14
-  "jdk/jfr/FlightRecorder", // 15
-  "register",     // 16
-  "(Ljava/lang/Class;)V", // 17
-  "StackMapTable", // 18
-  "Exceptions", // 19
-  "LineNumberTable", // 20
-  "LocalVariableTable", // 21
-  "LocalVariableTypeTable", // 22
-  "RuntimeVisibleAnnotation", // 23
+  "startTime",    // 11 
+  "capturedContext", // 12
+  "Ljdk/jfr/ContextSnapshot;", // 13 // LAST_REQUIRED_UTF8
+  "Ljdk/jfr/internal/event/EventConfiguration;", // 14
+  "Ljava/lang/Object;", // 15
+  "<clinit>",     // 16
+  "jdk/jfr/FlightRecorder", // 17
+  "register",     // 18
+  "(Ljava/lang/Class;)V", // 19
+  "StackMapTable", // 20
+  "Exceptions", // 21
+  "LineNumberTable", // 22
+  "LocalVariableTable", // 23
+  "LocalVariableTypeTable", // 24
+  "RuntimeVisibleAnnotation", // 25
 };
 
 enum utf8_req_symbols {
@@ -107,6 +109,8 @@ enum utf8_req_symbols {
   UTF8_REQ_end,
   UTF8_REQ_shouldCommit,
   UTF8_REQ_startTime,
+  UTF8_REQ_capturedContext,
+  UTF8_REQ_capturedContext_FIELD_DESC,
   NOF_UTF8_REQ_SYMBOLS
 };
 
@@ -586,6 +590,10 @@ static u2 add_field_infos(JfrBigEndianWriter& writer, const u2* utf8_indexes, bo
   add_field_info(writer,
                  utf8_indexes[UTF8_REQ_duration],
                  utf8_indexes[UTF8_REQ_J_FIELD_DESC]);
+
+  // add_field_info(writer,
+  //                utf8_indexes[UTF8_REQ_capturedContext],
+  //                utf8_indexes[UTF8_REQ_capturedContext_FIELD_DESC]);
 
   return number_of_new_fields;
 }

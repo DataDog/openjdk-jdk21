@@ -47,7 +47,7 @@ public enum EventWriterMethod {
     PUT_STRING("(Ljava/lang/String;)V", Type.STRING.getName(), "putString"),
     PUT_EVENT_THREAD("()V", Type.THREAD.getName(), "putEventThread"),
     PUT_STACK_TRACE("()V", Type.TYPES_PREFIX + "StackTrace", "putStackTrace"),
-    PUT_CONTEXT_FIELDS("()V", ContextEventWriter.class.getName(), "putContext");
+    PUT_CONTEXT_FIELDS("(Ljdk/jfr/ContextSnapshot;)V", ContextEventWriter.class.getName(), "putContext");
 
     final Method asmMethod;
     final String typeDescriptor;

@@ -25,6 +25,8 @@
 
 package jdk.jfr.internal.event;
 
+import jdk.jfr.ContextSnapshot;
+
 import jdk.internal.misc.Unsafe;
 import jdk.jfr.internal.Bits;
 import jdk.jfr.internal.context.ContextEventWriter;
@@ -196,8 +198,8 @@ public final class EventWriter {
         }
     }
 
-    public void putContext() {
-        ContextEventWriter.putContext(this);
+    public void putContext(ContextSnapshot context) {
+        ContextEventWriter.putContext(this, context);
     }
 
     private void reserveEventSizeField() {

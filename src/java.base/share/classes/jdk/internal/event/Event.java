@@ -40,6 +40,12 @@ public abstract class Event {
     }
 
     /**
+     * Captures and stores the current JFR context such that it can be serialized on {@linkplain Event#commit()}
+     */
+    public void captureContext() {
+    }
+
+    /**
      * Starts the timing of this event.
      */
     public void begin() {

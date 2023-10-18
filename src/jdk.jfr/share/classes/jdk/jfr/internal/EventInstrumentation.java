@@ -97,6 +97,7 @@ public final class EventInstrumentation {
     private static final Method METHOD_RESET = new Method("reset", "()V");
     private static final Method METHOD_ENABLED = new Method("enabled", Type.BOOLEAN_TYPE, new Type[0]);
     private static final Method METHOD_SHOULD_COMMIT_LONG = new Method("shouldCommit", Type.BOOLEAN_TYPE, new Type[] { Type.LONG_TYPE });
+    private static final Method METHOD_CAPTURE_CONTEXT = new Method("captureContext", "()V");
 
     private final ClassNode classNode;
     private final List<SettingInfo> settingInfos;
@@ -379,6 +380,15 @@ public final class EventInstrumentation {
             methodVisitor.visitMaxs(0, 0);
         });
 
+        // MyEvent#captureContext()
+        updateMethod(METHOD_CAPTURE_CONTEXT, methodVisitor -> {
+            methodVisitor.visitIntInsn(Opcodes.ALOAD, 0); // [this]
+            methodVisitor.visitMethodInsn(Opcodes.INVOKESTATIC, "jdk/jfr/ContextSnapshot", "capture", "()Ljdk/jfr/ContextSnapsho;", false); // [this, snapshot]
+            methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, getInternalClassName(), "capturedContext", "Ljdk/jfr/ContextSnapshot;");
+            methodVisitor.visitInsn(Opcodes.RETURN);
+            methodVisitor.visitMaxs(0, 0);
+        });
+
         // MyEvent#commit() or static MyEvent#commit(...)
         if (staticCommitMethod != null) {
             updateExistingWithEmptyVoidMethod(METHOD_COMMIT);
@@ -441,9 +451,11 @@ public final class EventInstrumentation {
                 // stack: [EW]
                 if (contextAware) {
                     // write _ctx_*
-                    mv.visitInsn(Opcodes.DUP);
-                    // stack: [EW], [EW]
-                    visitMethod(mv, Opcodes.INVOKEVIRTUAL, TYPE_EVENT_WRITER, EventWriterMethod.PUT_CONTEXT_FIELDS.asASM());
+                    mv.visitInsn(Opcodes.DUP); // stack: [EW], [EW]
+                    mv.visitInsn(Opcodes.DUP); // stack: [EW], [EW], [EW]
+                    mv.visitInsn(Opcodes.ACONST_NULL); // stack: [EW], [EW], [null]
+                    // mv.visitFieldInsn(Opcodes.GETFIELD, getInternalClassName(), "capturedContext", "Ljdk/jfr/ContextSnapshot;"); // stack: [EW], [EW], [context]
+                    visitMethod(mv, Opcodes.INVOKEVIRTUAL, TYPE_EVENT_WRITER, EventWriterMethod.PUT_CONTEXT_FIELDS.asASM()); // stack: [EW]
                 }
                 // stack: [EW]
                 // write custom fields

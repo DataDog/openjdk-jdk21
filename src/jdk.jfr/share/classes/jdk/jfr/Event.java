@@ -75,6 +75,13 @@ public abstract class Event extends jdk.internal.event.Event {
     }
 
     /**
+     * Captures and stores the current JFR context such that it can be serialized on {@linkplain Event#commit()}
+     */
+    @Override
+    public final void captureContext() {
+    }
+
+    /**
      * Starts the timing of this event.
      */
     @Override

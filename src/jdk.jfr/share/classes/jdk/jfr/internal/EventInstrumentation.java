@@ -453,8 +453,7 @@ public final class EventInstrumentation {
                     // write _ctx_*
                     mv.visitInsn(Opcodes.DUP); // stack: [EW], [EW]
                     mv.visitInsn(Opcodes.DUP); // stack: [EW], [EW], [EW]
-                    mv.visitInsn(Opcodes.ACONST_NULL); // stack: [EW], [EW], [null]
-                    // mv.visitFieldInsn(Opcodes.GETFIELD, getInternalClassName(), "capturedContext", "Ljdk/jfr/ContextSnapshot;"); // stack: [EW], [EW], [context]
+                    mv.visitFieldInsn(Opcodes.GETFIELD, getInternalClassName(), "capturedContext", "Ljdk/jfr/ContextSnapshot;"); // stack: [EW], [EW], [context]
                     visitMethod(mv, Opcodes.INVOKEVIRTUAL, TYPE_EVENT_WRITER, EventWriterMethod.PUT_CONTEXT_FIELDS.asASM()); // stack: [EW]
                 }
                 // stack: [EW]

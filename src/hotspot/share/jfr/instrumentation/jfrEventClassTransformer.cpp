@@ -63,7 +63,7 @@
 #include "utilities/macros.hpp"
 
 static const u2 number_of_new_methods = 5;
-static const u2 number_of_new_fields = 3;
+static const u2 number_of_new_fields = 4;
 static const int extra_stream_bytes = 0x280;
 static const u2 invalid_cp_index = 0;
 
@@ -80,7 +80,7 @@ static const char* utf8_constants[] = {
   "end",          // 9
   "shouldCommit", // 10
   "startTime",    // 11 
-  "capturedContext", // 12
+  "capturedContext", // 12 
   "Ljdk/jfr/ContextSnapshot;", // 13 // LAST_REQUIRED_UTF8
   "Ljdk/jfr/internal/event/EventConfiguration;", // 14
   "Ljava/lang/Object;", // 15
@@ -591,9 +591,9 @@ static u2 add_field_infos(JfrBigEndianWriter& writer, const u2* utf8_indexes, bo
                  utf8_indexes[UTF8_REQ_duration],
                  utf8_indexes[UTF8_REQ_J_FIELD_DESC]);
 
-  // add_field_info(writer,
-  //                utf8_indexes[UTF8_REQ_capturedContext],
-  //                utf8_indexes[UTF8_REQ_capturedContext_FIELD_DESC]);
+  add_field_info(writer,
+                 utf8_indexes[UTF8_REQ_capturedContext],
+                 utf8_indexes[UTF8_REQ_capturedContext_FIELD_DESC]);
 
   return number_of_new_fields;
 }

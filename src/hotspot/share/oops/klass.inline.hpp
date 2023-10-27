@@ -41,7 +41,7 @@ inline bool Klass::is_non_strong_hidden() const {
          class_loader_data()->has_class_mirror_holder();
 }
 
-// Iff the class loader (or mirror for non-strong hidden classes) is alive the
+// If the class loader (or mirror for non-strong hidden classes) is alive the
 // Klass is considered alive. This is safe to call before the CLD is marked as
 // unloading, and hence during concurrent class unloading.
 // This returns false if the Klass is unloaded, or about to be unloaded because the holder of

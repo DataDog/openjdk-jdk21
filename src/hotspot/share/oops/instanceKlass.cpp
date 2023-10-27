@@ -661,13 +661,13 @@ void InstanceKlass::deallocate_contents(ClassLoaderData* loader_data) {
   // delete it, yet.  The new class's previous version will point to this.
   if (constants() != nullptr) {
     assert (!constants()->on_stack(), "shouldn't be called if anything is onstack");
-    if (!constants()->is_shared()) {
-      MetadataFactory::free_metadata(loader_data, constants());
+    ConstantPool* cp = constants();
+    set_constants(nullptr);
+    if (!cp->is_shared()) {
+      MetadataFactory::free_metadata(loader_data, cp);
     }
     // Delete any cached resolution errors for the constant pool
-    SystemDictionary::delete_resolution_error(constants());
-
-    set_constants(nullptr);
+    SystemDictionary::delete_resolution_error(cp);
   }
 
   if (inner_classes() != nullptr &&

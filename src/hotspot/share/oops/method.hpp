@@ -542,7 +542,11 @@ public:
                        { return constMethod()->compressed_linenumber_table(); }
 
   // method holder (the Klass* holding this method)
-  InstanceKlass* method_holder() const         { return constants()->pool_holder(); }
+  InstanceKlass* method_holder() const         {
+     ConstantPool* cp = os::is_readable_pointer(this) ? constants() : nullptr;
+     // InstanceKlass::deallocate_contents() will set _constants to nullptr so it needs to be checked
+     return cp != nullptr && os::is_readable_pointer(cp) ? cp->pool_holder() : nullptr; 
+  }
 
   Symbol* klass_name() const;                    // returns the name of the method holder
   BasicType result_type() const                  { return constMethod()->result_type(); }

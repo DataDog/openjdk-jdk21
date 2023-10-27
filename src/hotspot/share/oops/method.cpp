@@ -2044,6 +2044,13 @@ class JNIMethodBlockNode : public CHeapObj<mtClass> {
 
   ~JNIMethodBlockNode() { FREE_C_HEAP_ARRAY(Method*, _methods); }
 
+  // ~JNIMethodBlockNode() {
+  //   for (int i = 0; i < _number_of_methods; i++) {
+  //     _methods[i] = nullptr;
+  //   }
+  //   FREE_C_HEAP_ARRAY(Method*, _methods); 
+  // }
+
   void ensure_methods(int num_addl_methods) {
     if (_top < _number_of_methods) {
       num_addl_methods -= _number_of_methods - _top;
@@ -2087,6 +2094,7 @@ class JNIMethodBlock : public CHeapObj<mtClass> {
           if (b->_methods[i] == _free_method) {
             b->_methods[i] = m;
             _last_free = b;
+            // m->_jmethodid = (jmethodID)&(b->_methods[i]);
             return &(b->_methods[i]);
           }
         }
@@ -2129,6 +2137,7 @@ class JNIMethodBlock : public CHeapObj<mtClass> {
 #ifdef ASSERT
     assert(contains(m), "should be a methodID");
 #endif // ASSERT
+    // (*m)->_jmethodid = nullptr;
     *m = _free_method;
   }
 
@@ -2137,6 +2146,10 @@ class JNIMethodBlock : public CHeapObj<mtClass> {
   void clear_all_methods() {
     for (JNIMethodBlockNode* b = &_head; b != nullptr; b = b->_next) {
       for (int i = 0; i< b->_number_of_methods; i++) {
+        // Method* m = b->_methods[i];
+        // if (m != nullptr && m != _free_method) {
+        //   m->_jmethodid = nullptr;
+        // }
         b->_methods[i] = nullptr;
       }
     }
@@ -2212,6 +2225,7 @@ void Method::change_method_associated_with_jmethod_id(jmethodID jmid, Method* ne
            new_method->method_holder()->class_loader() == nullptr, // allow Unsafe substitution
          "changing to a different class loader");
   // Just change the method in place, jmethodID pointer doesn't change.
+  // new_method->_jmethodid = jmid;
   *((Method**)jmid) = new_method;
 }
 
@@ -2230,12 +2244,21 @@ Method* Method::checked_resolve_jmethod_id(jmethodID mid) {
   if (o == nullptr || o == JNIMethodBlock::_free_method) {
     return nullptr;
   }
+  if (!is_valid_method(o)) {
+    return nullptr;
+  }
+  // methodHandle mh(Thread::current(), o);
+  
   // Method should otherwise be valid. Assert for testing.
-  assert(is_valid_method(o), "should be valid jmethodid");
+  // assert(is_valid_method(o), "should be valid jmethodid");
+  
   // If the method's class holder object is unreferenced, but not yet marked as
   // unloaded, we need to return null here too because after a safepoint, its memory
   // will be reclaimed.
   return o->method_holder()->is_loader_alive() ? o : nullptr;
+
+  // InstanceKlass* holder = o->method_holder();
+  // return holder != nullptr && os::is_readable_pointer(holder) ? (holder->is_loader_alive() ? o : nullptr) : nullptr;
 };
 
 void Method::set_on_stack(const bool value) {

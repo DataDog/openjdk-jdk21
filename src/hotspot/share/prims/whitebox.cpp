@@ -2550,6 +2550,10 @@ WB_ENTRY(jboolean, WB_SetVirtualThreadsNotifyJvmtiMode(JNIEnv* env, jobject wb, 
   return result;
 WB_END
 
+WB_ENTRY(void, WB_CleanMetaspaces(JNIEnv* env, jobject target))
+  ClassLoaderDataGraph::safepoint_and_clean_metaspaces();
+WB_END
+
 #define CC (char*)
 
 static JNINativeMethod methods[] = {
@@ -2829,6 +2833,7 @@ static JNINativeMethod methods[] = {
   {CC"lockCritical",    CC"()V",                      (void*)&WB_LockCritical},
   {CC"unlockCritical",  CC"()V",                      (void*)&WB_UnlockCritical},
   {CC"setVirtualThreadsNotifyJvmtiMode", CC"(Z)Z",    (void*)&WB_SetVirtualThreadsNotifyJvmtiMode},
+  {CC"cleanMetaspaces", CC"()V",                      (void*)&WB_CleanMetaspaces},
 };
 
 

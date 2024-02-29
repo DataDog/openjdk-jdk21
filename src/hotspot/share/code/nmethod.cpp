@@ -394,6 +394,7 @@ PcDesc* PcDescCache::find_pc_desc(int pc_offset, bool approximate) {
 }
 
 void PcDescCache::add_pc_desc(PcDesc* pc_desc) {
+  MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, Thread::current());)
   NOT_PRODUCT(++pc_nmethod_stats.pc_desc_adds);
   // Update the LRU cache by shifting pc_desc forward.
   for (int i = 0; i < cache_size; i++)  {
@@ -2751,9 +2752,6 @@ void nmethod::decode2(outputStream* ost) const {
                                                                   AbstractDisassembler::show_block_comment());
 #endif
 
-  // Decoding an nmethod can write to a PcDescCache (see PcDescCache::add_pc_desc)
-  MACOS_AARCH64_ONLY(ThreadWXEnable wx(WXWrite, Thread::current());)
-
   st->cr();
   this->print(st);
   st->cr();
@@ -3061,7 +3059,7 @@ void nmethod::print_nmethod_labels(outputStream* stream, address block_begin, bo
         assert(sig_index == sizeargs, "");
       }
       const char* spname = "sp"; // make arch-specific?
-      intptr_t out_preserve = SharedRuntime::java_calling_convention(sig_bt, regs, sizeargs);
+      SharedRuntime::java_calling_convention(sig_bt, regs, sizeargs);
       int stack_slot_offset = this->frame_size() * wordSize;
       int tab1 = 14, tab2 = 24;
       int sig_index = 0;

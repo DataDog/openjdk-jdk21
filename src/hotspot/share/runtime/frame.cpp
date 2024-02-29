@@ -52,6 +52,7 @@
 #include "runtime/monitorChunk.hpp"
 #include "runtime/os.hpp"
 #include "runtime/sharedRuntime.hpp"
+#include "runtime/safefetch.hpp"
 #include "runtime/signature.hpp"
 #include "runtime/stackValue.hpp"
 #include "runtime/stubCodeGenerator.hpp"
@@ -299,6 +300,14 @@ bool frame::is_entry_frame_valid(JavaThread* thread) const {
   // Validate sp saved in the java frame anchor
   JavaFrameAnchor* jfa = entry_frame_call_wrapper()->anchor();
   return (jfa->last_Java_sp() > sp());
+}
+
+Method* frame::safe_interpreter_frame_method() const {
+  Method** m_addr = interpreter_frame_method_addr();
+  if (m_addr == nullptr) {
+    return nullptr;
+  }
+  return (Method*) SafeFetchN((intptr_t*) m_addr, 0);
 }
 
 bool frame::should_be_deoptimized() const {
@@ -1430,7 +1439,7 @@ void frame::describe(FrameValues& values, int frame_no, const RegisterMap* reg_m
         assert(sig_index == sizeargs, "");
       }
       int stack_arg_slots = SharedRuntime::java_calling_convention(sig_bt, regs, sizeargs);
-      assert(stack_arg_slots ==  m->num_stack_arg_slots(), "");
+      assert(stack_arg_slots ==  m->num_stack_arg_slots(false /* rounded */), "");
       int out_preserve = SharedRuntime::out_preserve_stack_slots();
       int sig_index = 0;
       int arg_index = (m->is_static() ? 0 : -1);

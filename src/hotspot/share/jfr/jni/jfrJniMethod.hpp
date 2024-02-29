@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2014, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, Datadog, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -166,6 +167,14 @@ jboolean JNICALL jfr_is_containerized(JNIEnv* env, jobject jvm);
 jlong JNICALL jfr_host_total_memory(JNIEnv* env, jobject jvm);
 
 void JNICALL jfr_emit_data_loss(JNIEnv* env, jclass jvm, jlong bytes);
+
+void JNICALL jfr_mark_context_in_use(JNIEnv* env, jclass jvm);
+
+jlong JNICALL jfr_open_context(JNIEnv* env, jclass jvm);
+
+jlong JNICALL jfr_close_context(JNIEnv* env, jclass jvm);
+
+jboolean JNICALL jfr_has_context(JNIEnv* env, jclass jvm);
 
 #ifdef __cplusplus
 }
